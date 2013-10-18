@@ -11,6 +11,7 @@ import (
 	"github.com/Jackong/gweb/config"
 	"github.com/Jackong/gweb/router"
 	"github.com/Jackong/gweb/input"
+	"github.com/Jackong/gweb/err"
 )
 
 
@@ -23,11 +24,25 @@ func Go() {
 }
 
 func handler(writer http.ResponseWriter, req *http.Request) {
+	defer func() {
+		if e := recover(); e != nil {
+			err := e.(err.Input)
+			fmt.Println(err)
+			http.Error(writer, "400 Bad Request", http.StatusBadRequest)
+			return
+		}
+	}()
+
+	if !router.IsSupportMethod(req.Method) {
+		http.Error(writer, "405 Method Not Allowed", http.StatusMethodNotAllowed)
+	}
+
 	policy := router.Router(req.Method, req.URL.Path)
 	if policy == nil {
 		http.NotFound(writer, req)
 		return
 	}
+
 	input := input.New(req)
 	if ok, output := policy.RunBefore(input); ok == false {
 		fmt.Fprint(writer, output)

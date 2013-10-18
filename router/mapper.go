@@ -8,6 +8,7 @@ package router
 
 var (
 	routers map[string]map[string]*PolicyBase
+	methods = []string{GET, PUT, POST, DELETE}
 )
 
 const (
@@ -19,12 +20,12 @@ const (
 
 func init() {
     routers = make(map[string]map[string]*PolicyBase)
-	for _, method := range []string{GET, PUT, POST, DELETE} {
-		routers[method] = make(map[string]*PolicyBase)
-	}
 }
 
 func Route(method, pattern string, core Core) *PolicyBase {
+	if routers[method] == nil {
+		routers[method] = make(map[string]*PolicyBase)
+	}
 	policy := &PolicyBase {Core: core, before: []Before{}}
 	routers[method][pattern] = policy
 	return policy
@@ -46,6 +47,10 @@ func Put(pattern string, core Core) *PolicyBase {
 
 func Delete(pattern string, core Core) *PolicyBase {
 	return Route(DELETE, pattern, core)
+}
+
+func IsSupportMethod(method string) bool {
+	return routers[method] != nil
 }
 
 func Router(method, pattern string) *PolicyBase {
