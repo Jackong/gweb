@@ -1,0 +1,10 @@
+{
+    "server": {
+        "name": "web",
+        "addr": ":7777"
+    },
+    "view" : {
+        "root": "src/github.com/Jackong/gweb/view",
+        "paths": ["/js/", "/css/", "/img/"]
+    }
+}
