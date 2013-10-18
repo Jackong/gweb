@@ -16,7 +16,7 @@ import (
 type conf map[string]map[string]interface {}
 
 var (
-	dir string = "src/github.com/Jackong/gweb/config"
+	dir string = os.Getenv("GOPATH") + "/src/github.com/Jackong/gweb/config"
 	Project conf
 )
 

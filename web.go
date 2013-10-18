@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"fmt"
 	"github.com/Jackong/gweb/config"
-	"github.com/Jackong/gweb/mapper"
+	"github.com/Jackong/gweb/router"
 	"github.com/Jackong/gweb/input"
 )
 
@@ -23,16 +23,16 @@ func Go() {
 }
 
 func handler(writer http.ResponseWriter, req *http.Request) {
-	router := mapper.Get(req.URL.Path)
-	if router == nil {
+	policy := router.Router(req.Method, req.URL.Path)
+	if policy == nil {
 		http.NotFound(writer, req)
 		return
 	}
 	input := input.New(req)
-	if ok, output := router.RunBefore(input); ok == false {
+	if ok, output := policy.RunBefore(input); ok == false {
 		fmt.Fprint(writer, output)
 		return
 	}
-	output := router.Handler(input)
+	output := policy.Handler(input)
 	fmt.Fprint(writer, output)
 }

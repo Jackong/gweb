@@ -20,10 +20,6 @@ type PolicyBase struct {
 	Core
 }
 
-func New(core Core) *PolicyBase {
-    return &PolicyBase {Core: core, before: []Before{}}
-}
-
 func (this *PolicyBase) Before(before Before) {
     this.before = append(this.before, before)
 }
