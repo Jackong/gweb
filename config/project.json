@@ -5,6 +5,6 @@
     },
     "view" : {
         "root": "src/github.com/Jackong/gweb/view",
-        "paths": ["/js/", "/css/", "/img/"]
+        "paths": ["/js/", "/css/", "/img/", "/html/"]
     }
 }

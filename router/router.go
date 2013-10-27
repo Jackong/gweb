@@ -8,27 +8,25 @@ package router
 import (
 	"github.com/Jackong/gweb/input"
 )
+type Handle func(input.Input) interface {}
 
-
-type Core interface {
-	Handler(input input.Input) interface {}
+type Router interface {
+	Handle(input.Input) interface{}
 }
 
-type Before func(input.Input) bool
-type PolicyBase struct {
-	before[]Before
-	Core
+type proxy struct {
+	Router
+	proxy Handle
 }
 
-func (this *PolicyBase) Before(before Before) {
-    this.before = append(this.before, before)
+func (this proxy) Handle(in input.Input) interface {} {
+	return this.proxy(in)
 }
 
-func (this *PolicyBase) RunBefore(in input.Input) (bool, output interface {}) {
-	for _, before := range this.before {
-		if !before(in) {
-			return false, "error"
-		}
-	}
-	return true, output
+type BeforeFunc func(input.Input) bool
+type Before struct {
+	Forward BeforeFunc
+}
+func (this *Before) Before(before BeforeFunc) {
+	this.Forward = before
 }

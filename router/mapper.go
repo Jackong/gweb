@@ -5,9 +5,9 @@
  */
 package router
 
-
 var (
-	routers map[string]map[string]*PolicyBase
+	routers map[string]map[string]Router
+	befores map[string]map[string]*Before
 	methods = []string{GET, PUT, POST, DELETE}
 )
 
@@ -19,45 +19,34 @@ const (
 )
 
 func init() {
-    routers = make(map[string]map[string]*PolicyBase)
+    routers = make(map[string]map[string]Router)
+	befores = make(map[string]map[string] *Before)
 }
 
-func Route(method, pattern string, core Core) *PolicyBase {
+func RouteFunc(method, pattern string, handler Handle) *Before {
+	return Route(method, pattern, proxy{proxy: handler})
+}
+
+func Route(method, pattern string, router Router) *Before{
 	if routers[method] == nil {
-		routers[method] = make(map[string]*PolicyBase)
+		routers[method] = make(map[string]Router)
+		befores[method] = make(map[string]*Before)
 	}
-	policy := &PolicyBase {Core: core, before: []Before{}}
-	routers[method][pattern] = policy
-	return policy
-}
-
-func Get(pattern string, core Core) *PolicyBase {
-    return Route(GET, pattern, core)
-}
-
-func Post(pattern string, core Core) *PolicyBase {
-    return Route(POST, pattern, core)
-}
-
-
-func Put(pattern string, core Core) *PolicyBase {
-	return Route(PUT, pattern, core)
-}
-
-
-func Delete(pattern string, core Core) *PolicyBase {
-	return Route(DELETE, pattern, core)
+	routers[method][pattern] = router
+	before := &Before{}
+	befores[method][pattern] = before
+	return before
 }
 
 func IsSupportMethod(method string) bool {
 	return routers[method] != nil
 }
 
-func Router(method, pattern string) *PolicyBase {
-	policy, ok := routers[method][pattern]
+func GetRouter(method, pattern string) (*Before, Router) {
+	router, ok := routers[method][pattern]
 	if ok {
-		return policy
+		return befores[method][pattern], router
 	}
 	//todo match by pattern
-	return nil
+	return nil, nil
 }

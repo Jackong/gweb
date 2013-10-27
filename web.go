@@ -35,19 +35,20 @@ func handler(writer http.ResponseWriter, req *http.Request) {
 
 	if !router.IsSupportMethod(req.Method) {
 		http.Error(writer, "405 Method Not Allowed", http.StatusMethodNotAllowed)
+		return
 	}
 
-	policy := router.Router(req.Method, req.URL.Path)
-	if policy == nil {
-		http.NotFound(writer, req)
+	before, rt := router.GetRouter(req.Method, req.URL.Path)
+	if rt == nil {
+		http.Redirect(writer, req, "/html" + req.URL.Path, http.StatusFound)
 		return
 	}
 
 	input := input.New(req)
-	if ok, output := policy.RunBefore(input); ok == false {
-		fmt.Fprint(writer, output)
+	if ok := before.Forward(input); !ok {
+		http.Error(writer, "400 Bad Request", http.StatusBadRequest)
 		return
 	}
-	output := policy.Handler(input)
+	output := rt.Handle(input)
 	fmt.Fprint(writer, output)
 }
