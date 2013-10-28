@@ -25,8 +25,25 @@ func (this proxy) Handle(in input.Input) interface {} {
 
 type BeforeFunc func(input.Input) bool
 type Before struct {
-	Forward BeforeFunc
+	before *Before
+	forward BeforeFunc
 }
-func (this *Before) Before(before BeforeFunc) {
-	this.Forward = before
+
+func (this *Before) Before(before BeforeFunc) *Before {
+	this.forward = before
+	this.before = &Before{}
+	return this.before
+}
+
+func (this *Before) IsForward(in input.Input) bool {
+	if this.before == nil {
+		return true
+	}
+	if !this.before.IsForward(in) {
+		return false
+	}
+    if this.forward == nil {
+		return true
+	}
+	return this.forward(in)
 }

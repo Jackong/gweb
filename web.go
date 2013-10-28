@@ -45,7 +45,7 @@ func handler(writer http.ResponseWriter, req *http.Request) {
 	}
 
 	input := input.New(req)
-	if ok := before.Forward(input); !ok {
+	if ok := before.IsForward(input); !ok {
 		http.Error(writer, "400 Bad Request", http.StatusBadRequest)
 		return
 	}
