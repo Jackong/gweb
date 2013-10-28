@@ -12,10 +12,12 @@ import (
 	"github.com/Jackong/gweb/router"
 	"github.com/Jackong/gweb/input"
 	"github.com/Jackong/gweb/err"
+	"github.com/Jackong/gweb/log"
 )
 
 
 func Go() {
+	log.Info("going")
 	for _, path := range config.Project["view"]["paths"].([]interface {}) {
 		http.Handle(path.(string), http.FileServer(http.Dir(config.Project["view"]["root"].(string))))
 	}
@@ -24,6 +26,7 @@ func Go() {
 }
 
 func handler(writer http.ResponseWriter, req *http.Request) {
+	log.Info("request")
 	defer func() {
 		if e := recover(); e != nil {
 			err := e.(err.Input)
