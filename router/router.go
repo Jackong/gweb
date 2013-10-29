@@ -30,17 +30,19 @@ type Before struct {
 }
 
 func (this *Before) Before(before BeforeFunc) *Before {
-	this.forward = before
+	if this.forward == nil {
+		this.forward = before
+		return this
+	}
 	this.before = &Before{}
-	return this.before
+	return this.before.Before(before)
 }
 
 func (this *Before) IsForward(in input.Input) bool {
-	if this.before == nil {
-		return true
-	}
-	if !this.before.IsForward(in) {
-		return false
+	if this.before != nil {
+		if !this.before.IsForward(in) {
+			return false
+		}
 	}
     if this.forward == nil {
 		return true
